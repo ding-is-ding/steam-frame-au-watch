@@ -28,6 +28,7 @@ jobs:
 
       - name: Check Australian inventory and send Discord alerts
         env:
+          AU_ENDPOINT_URL: ${{ vars.AU_ENDPOINT_URL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
           SEND_TEST: ${{ inputs.send_test || 'false' }}
