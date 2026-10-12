@@ -10,6 +10,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 COUNTRY = "AU"
 ITEMS = {"1629484": "Steam Frame 256GB", "1629486": "Steam Frame 1TB"}
@@ -154,9 +155,7 @@ def main():
     status_webhook_url = os.environ.get("DISCORD_STATUS_WEBHOOK_URL", "").strip()
     if successes == len(ITEMS) and all(statuses.get(pid) is False for pid in ITEMS):
         if status_webhook_url:
-            checked_at = dt.datetime.now(dt.timezone(dt.timedelta(hours=11)))
-            # Timestamp includes the current Sydney offset as supplied by the runner.
-            # The inventory result itself is from the validated Sydney endpoint.
+            checked_at = dt.datetime.now(ZoneInfo("Australia/Sydney"))
             try:
                 notify(
                     status_webhook_url,
@@ -164,7 +163,7 @@ def main():
                     "**256GB:** Out of stock\\n"
                     "**1TB:** Out of stock\\n\\n"
                     f"✅ Both Australian inventory checks succeeded.\\n"
-                    f"🕒 Checked: {checked_at.strftime('%d %b %Y %I:%M %p')} (AEDT)\\n\\n"
+                    f"🕒 Checked: {checked_at.strftime('%d %b %Y %I:%M %p %Z')}\\n\\n"
                     "This is the regular out-of-stock status report. "
                     "The separate restock channel only gets availability alerts.",
                     color=9807270,
