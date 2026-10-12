@@ -1,6 +1,11 @@
 name: Steam Frame Australia stock tracker
 
 on:
+  push:
+    paths:
+      - '.github/workflows/check-stock.yml'
+      - 'steam_frame_tracker.py'
+      - 'api/au-inventory.mjs'
   schedule:
     # Check once per hour at minute 13 UTC (GitHub schedules may be delayed).
     - cron: '13 * * * *'
@@ -28,7 +33,7 @@ jobs:
 
       - name: Check Australian inventory and send Discord alerts
         env:
-          AU_ENDPOINT_URL: ${{ vars.AU_ENDPOINT_URL }}
+          AU_ENDPOINT_URL: https://steam-frame-au-watch.vercel.app/api/au-inventory
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
           SEND_TEST: ${{ inputs.send_test || 'false' }}
