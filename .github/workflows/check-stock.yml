@@ -7,8 +7,8 @@ on:
       - 'steam_frame_tracker.py'
       - 'api/au-inventory.mjs'
   schedule:
-    # Check once per hour at minute 13 UTC (GitHub schedules may be delayed).
-    - cron: '13 * * * *'
+    # Hourly at minute 31 UTC; modifying the cron re-registers the GitHub scheduler.
+    - cron: '31 * * * *'
   workflow_dispatch:
     inputs:
       send_test:
