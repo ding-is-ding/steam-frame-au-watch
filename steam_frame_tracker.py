@@ -21,6 +21,27 @@ STEAM_API = (
 STATE_FILE = Path(__file__).with_name("stock-status.json")
 
 
+def check_sydney_inventory():
+    endpoint = os.environ.get("AU_ENDPOINT_URL", "").strip()
+    if not endpoint:
+        return None
+    if not endpoint.startswith("https://"):
+        raise RuntimeError("AU_ENDPOINT_URL must be an HTTPS address")
+    request = urllib.request.Request(
+        endpoint,
+        headers={"User-Agent": "SteamFrameAUStockWatcher/1.0", "Accept": "application/json"},
+    )
+    with urllib.request.urlopen(request, timeout=35) as response:
+        payload = json.load(response)
+    if payload.get("region") != "syd1" or payload.get("egress_country") != "AU":
+        raise RuntimeError("Sydney endpoint did not verify Australian outbound location")
+    models = payload.get("models", {})
+    if any(not isinstance(models.get(pid), bool) for pid in ITEMS):
+        raise RuntimeError("Sydney endpoint returned incomplete inventory data")
+    print("Verified Sydney function with Australian outbound IP")
+    return models
+
+
 def check_inventory(package_id):
     params = urllib.parse.urlencode({
         "origin": "https://store.steampowered.com",
@@ -95,10 +116,13 @@ def main():
     else:
         state = {}
     statuses = state.get("models", {})
+    # Require Australian IP verification whenever the Sydney endpoint is configured.
+    sydney_statuses = check_sydney_inventory()
     successes = 0
     for package_id, name in ITEMS.items():
         try:
-            available = check_inventory(package_id)
+            available = (sydney_statuses[package_id] if sydney_statuses is not None
+                         else check_inventory(package_id))
             old_status = statuses.get(package_id)  # None means we have never checked.
             print(f"{name}: {'IN STOCK' if available else 'out of stock'} (previous: {old_status})")
             # Unknown -> available and out of stock -> available both merit an alert.
