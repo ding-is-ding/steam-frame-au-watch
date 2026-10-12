@@ -14,7 +14,7 @@ on:
       send_test:
         description: 'Send a test message to Discord'
         required: false
-        default: true
+        default: false
         type: boolean
 
 permissions:
@@ -35,6 +35,7 @@ jobs:
         env:
           AU_ENDPOINT_URL: https://steam-frame-au-watch.vercel.app/api/au-inventory
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_STATUS_WEBHOOK_URL: ${{ secrets.DISCORD_STATUS_WEBHOOK_URL }}
           DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
           SEND_TEST: ${{ inputs.send_test || 'false' }}
         run: python3 steam_frame_tracker.py
