@@ -1,0 +1,47 @@
+name: Verify Sydney Steam Frame endpoint
+
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-sydney.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check real endpoint, outbound country and both stock booleans
+        env:
+          URL: https://steam-frame-au-watch.vercel.app/api/au-inventory
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import urllib.error
+          url = os.environ["URL"]
+          try:
+              with urllib.request.urlopen(urllib.request.Request(url, headers={
+                  "User-Agent": "SteamFrameAUStockWatcher/1.0",
+                  "Accept": "application/json"
+              }), timeout=40) as r:
+                  status = r.status
+                  body = r.read(10000).decode("utf-8", "replace")
+          except urllib.error.HTTPError as e:
+              print("Endpoint HTTP:", e.code)
+              print("Response:", e.read(4000).decode("utf-8", "replace"))
+              raise
+          print("HTTP:", status)
+          print("Response:", body)
+          data = json.loads(body)
+          assert data.get("region") == "syd1", "Vercel function isn't in Sydney"
+          assert data.get("egress_country") == "AU", "Outbound network isn't Australian"
+          models = data.get("models", {})
+          for id in ("1629484", "1629486"):
+              assert type(models.get(id)) is bool, "Invalid status for " + id
+          print("SUCCESS: Sydney region, Australian egress and both package statuses verified")
+          PY
