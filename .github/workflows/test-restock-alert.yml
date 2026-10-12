@@ -1,0 +1,49 @@
+name: Send simulated Steam Frame restock alert
+
+on:
+  push:
+    paths:
+      - '.github/workflows/test-restock-alert.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Send a simulated in-stock Discord notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from steam_frame_tracker import notify
+
+          webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
+          if not webhook.startswith(("https://discord.com/api/webhooks/", "https://discordapp.com/api/webhooks/")):
+              raise RuntimeError("DISCORD_WEBHOOK_URL is missing or invalid")
+
+          message = (
+              "**🧪 SIMULATION ONLY: No stock is confirmed available.**\n\n"
+              "🇦🇺 **Steam Frame 256GB:** 🟢 AVAILABLE (simulated)\n"
+              "🛒 **[Open Steam 256GB / Check Add to Cart](https://store.steampowered.com/sub/1629484/?curator_clanid=4777282)**\n\n"
+              "🇦🇺 **Steam Frame 1TB:** 🟢 AVAILABLE (simulated)\n"
+              "🛒 **[Open Steam 1TB / Check Add to Cart](https://store.steampowered.com/sub/1629486/?curator_clanid=4777282)**\n\n"
+              "⚠️ Real notifications are based on Australian Steam inventory data. "
+              "The Steam storefront may still restrict checkout based on your account or reservation."
+          )
+          notify(
+              webhook,
+              "🧪 TEST ALERT | Steam Frame RESTOCK in Australia!",
+              message,
+              os.environ.get("DISCORD_USER_ID", ""),
+              color=5763719,
+          )
+          print("SUCCESS: Simulated restock message delivered to Discord (no stock state changed)")
+          PY
