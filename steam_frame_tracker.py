@@ -160,10 +160,10 @@ def main():
                 notify(
                     status_webhook_url,
                     "🔴 Steam Frame AU: Still out of stock",
-                    "**256GB:** Out of stock\\n"
-                    "**1TB:** Out of stock\\n\\n"
-                    f"✅ Both Australian inventory checks succeeded.\\n"
-                    f"🕒 Checked: {checked_at.strftime('%d %b %Y %I:%M %p %Z')}\\n\\n"
+                    "**256GB:** Out of stock\n"
+                    "**1TB:** Out of stock\n\n"
+                    f"✅ Both Australian inventory checks succeeded.\n"
+                    f"🕒 Checked: {checked_at.strftime('%d %b %Y %I:%M %p %Z')}\n\n"
                     "This is the regular out-of-stock status report. "
                     "The separate restock channel only gets availability alerts.",
                     color=9807270,
