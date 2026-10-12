@@ -1,0 +1,38 @@
+name: Test out-of-stock Discord webhook
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Send a test to the out-of-stock channel only
+        env:
+          DISCORD_STATUS_WEBHOOK_URL: ${{ secrets.DISCORD_STATUS_WEBHOOK_URL }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from steam_frame_tracker import notify
+
+          url = os.environ.get("DISCORD_STATUS_WEBHOOK_URL", "").strip()
+          if not url.startswith(("https://discord.com/api/webhooks/", "https://discordapp.com/api/webhooks/")):
+              raise RuntimeError("Please configure the DISCORD_STATUS_WEBHOOK_URL Actions secret")
+
+          notify(
+              url,
+              "🧪 TEST | Steam Frame AU out-of-stock channel",
+              "This is a **TEST** of the second Discord channel, not a live stock check.\\n\\n"
+              "**256GB:** Out of stock (simulated)\\n"
+              "**1TB:** Out of stock (simulated)\\n\\n"
+              "Hourly confirmed out-of-stock reports will appear here when both models are unavailable.",
+              color=9807270,
+          )
+          print("SUCCESS: Status webhook test delivered; real stock state unchanged")
+          PY
