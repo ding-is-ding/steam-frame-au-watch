@@ -131,6 +131,7 @@ def main():
                     webhook_url,
                     f"🟢 {name} inventory AVAILABLE in Australia",
                     f"Steam's public inventory API reports **{name}** available in Australia.\n\n"
+                    f"🛒 **[Open Steam listing / Check Add to Cart](https://store.steampowered.com/sub/{package_id}/?curator_clanid=4777282)**\n\n"
                     "⚠️ Steam Frame purchases are reservation-restricted. "
                     "This alert does **not** guarantee your account can check out. "
                     "Check Steam and your purchase invitation.",
