@@ -148,6 +148,36 @@ def main():
     if not successes:
         raise RuntimeError("All Steam availability checks failed; no status was changed")
 
+    # Keep the original webhook exclusively for stock availability alerts.
+    # Post a separate hourly heartbeat ONLY after both package IDs were
+    # successfully checked and BOTH are confirmed out of stock.
+    status_webhook_url = os.environ.get("DISCORD_STATUS_WEBHOOK_URL", "").strip()
+    if successes == len(ITEMS) and all(statuses.get(pid) is False for pid in ITEMS):
+        if status_webhook_url:
+            checked_at = dt.datetime.now(dt.timezone(dt.timedelta(hours=11)))
+            # Timestamp includes the current Sydney offset as supplied by the runner.
+            # The inventory result itself is from the validated Sydney endpoint.
+            try:
+                notify(
+                    status_webhook_url,
+                    "🔴 Steam Frame AU: Still out of stock",
+                    "**256GB:** Out of stock\\n"
+                    "**1TB:** Out of stock\\n\\n"
+                    f"✅ Both Australian inventory checks succeeded.\\n"
+                    f"🕒 Checked: {checked_at.strftime('%d %b %Y %I:%M %p')} (AEDT)\\n\\n"
+                    "This is the regular out-of-stock status report. "
+                    "The separate restock channel only gets availability alerts.",
+                    color=9807270,
+                )
+                print("Out-of-stock status sent to second Discord webhook")
+            except (ValueError, RuntimeError, urllib.error.URLError, TimeoutError, OSError) as exc:
+                # A secondary webhook problem must not disrupt stock alerts or saved state.
+                print(f"WARNING: status Discord webhook failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        else:
+            print("Out-of-stock status webhook not configured; skipping status report")
+    else:
+        print("No all-out-of-stock report: inventory available or a check failed")
+
     state["models"] = statuses
     # A weekly metadata update keeps this scheduled workflow active in a public repo.
     today = dt.datetime.now(dt.timezone.utc).date()
