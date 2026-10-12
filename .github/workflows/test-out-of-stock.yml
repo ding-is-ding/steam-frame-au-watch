@@ -28,9 +28,9 @@ jobs:
           notify(
               url,
               "🧪 TEST | Steam Frame AU out-of-stock channel",
-              "This is a **TEST** of the second Discord channel, not a live stock check.\\n\\n"
-              "**256GB:** Out of stock (simulated)\\n"
-              "**1TB:** Out of stock (simulated)\\n\\n"
+              "This is a **TEST** of the second Discord channel, not a live stock check.\n\n"
+              "**256GB:** Out of stock (simulated)\n"
+              "**1TB:** Out of stock (simulated)\n\n"
               "Hourly confirmed out-of-stock reports will appear here when both models are unavailable.",
               color=9807270,
           )
