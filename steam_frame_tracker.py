@@ -59,7 +59,10 @@ def notify(webhook_url, title, message, mention_user="", color=3447003):
     request = urllib.request.Request(
         webhook_url,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+headers={
+    "Content-Type": "application/json",
+    "User-Agent": "SteamFrameAUStockWatcher/1.0",
+},
         method="POST",
     )
     try:
